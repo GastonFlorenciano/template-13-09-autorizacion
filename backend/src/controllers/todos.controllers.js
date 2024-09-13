@@ -44,7 +44,7 @@ export const createTodoCtrl = (req, res) => {
 
     todos.push(newTask);
 
-    res.status(201).json({message: 'Tarea creada exitosamente'});
+    res.status(201).json({ message: 'Tarea creada exitosamente' });
 
   } catch (error) {
 
@@ -57,58 +57,62 @@ export const createTodoCtrl = (req, res) => {
 }
 
 export const updateTodoCtrl = (req, res) => {
+  const user = req.user
+  const { id } = req.params
+  const { title, completed } = req.body
 
-  try {
-
-    const id  = parseInt(req.params.id);
-
-    const { title, completed } = req.body;
-
-    const todos = database.todos;
-
-    const task = todos.find(task => task.id === id);
-
-    if (!task) {
-      return res.status(404).json({ message: "Tarea no encontrada" });
-    } 
-
-    task.title = title;
-    task.completed = completed;
-
-    res.json({ message: "Tarea actualizada" });
-
-  } catch (error) {
-
-    console.error(error);
-    return res.status(500).json({ message: "Error Inesperado" });
-
+  if (!user) {
+    return res.status(401).json({ message: 'No autorizado' })
   }
 
+  if (!title && !completed) {
+    return res.status(400).json({ message: 'Falta el título o el estado' })
+  }
+
+  const todo = database.todos.find((todo) => todo.id === Number(id))
+
+  if (!todo) {
+    return res.status(404).json({ message: 'Tarea no encontrada' })
+  }
+
+  if (todo.owner !== user.id) {
+    return res.status(401).json({ message: 'No autorizado' })
+  }
+
+  if (title) {
+    todo.title = title
+  }
+
+  if (completed !== undefined) {
+    todo.completed = completed
+  }
+
+  res.json({ todo })
 }
 
 export const deleteTodoCtrl = (req, res) => {
+  const user = req.user
+  const { id } = req.params
 
-  try {
-
-    const id = parseInt(req.params.id);
-
-    const todos = database.todos;
-
-    const taskIndex = todos.findIndex(task => task.id === id);
-
-    if (taskIndex === -1) {
-      return res.status(404).json({ message: "Tarea no encontrada" });
-    }
-
-    todos.splice(taskIndex, 1);
-
-    res.json({ message: "Tarea eliminada" });
-
-  } catch (error) {
-
-    console.error(error);
-    return res.status(500).json({ message: "Error Inesperado" });
-
+  if (!user) {
+    return res.status(401).json({ message: 'No autorizado' })
   }
 
+  const todoIndex = database.todos.findIndex((todo) => todo.id === Number(id))
+
+  if (todoIndex === -1) {
+    return res.status(404).json({ message: 'Tarea no encontrada' })
+  }
+
+  const todo = database.todos[todoIndex]
+
+  console.log(todo);
+
+  if (todo.owner !== user.id) {
+    return res.status(401).json({ message: 'No autorizado' })
+  }
+
+  database.todos.splice(todoIndex, 1)
+
+  res.json({ todo })
 }
