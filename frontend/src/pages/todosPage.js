@@ -37,9 +37,12 @@ export const todosPage = () => {
   table.classList.add(
     "w-1/2",
     "bg-white",
-    "shadow-md",
+    "shadow-[0_7px_8px_0_gray]",
     "h-[700px]",
-    "overflow-y-scroll"
+    "overflow-y-scroll",
+    "border-2",
+    "border-[#bfbfbf]",
+    "rounded-[15px]"
   );
 
   const thead = document.createElement("thead");
@@ -98,7 +101,24 @@ export const todosPage = () => {
 
         const td4 = document.createElement("td");
         td4.classList.add("border", "px-4", "py-2");
+
+        const btnDel = document.createElement("button");
+
+        btnDel.textContent = "Delete";
+
+        btnDel.classList.add("bg-red-500", "text-white", "p-2", "rounded", "hover:bg-red-600", "mx-5");
+
+        btnDel.addEventListener("click", () => {
+          fetch(`http://localhost:4000/todos/delete/${todo.id}`, {
+            method: "DELETE",
+            credentials: "include",
+          }).then(() => {
+            tr.remove();
+          });
+
+        });
         td4.textContent = todo.owner;
+        td4.appendChild(btnDel);
 
         tr.appendChild(td1);
         tr.appendChild(td2);
