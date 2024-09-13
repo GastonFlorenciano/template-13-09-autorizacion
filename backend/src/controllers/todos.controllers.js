@@ -60,22 +60,49 @@ export const updateTodoCtrl = (req, res) => {
 
   try {
 
-    const { id } = req.params;
+    const id  = parseInt(req.params.id);
 
     const { title, completed } = req.body;
 
     const todos = database.todos;
 
-    const task = todos.find(task => task.id === Number(id));
+    const task = todos.find(task => task.id === id);
 
     if (!task) {
       return res.status(404).json({ message: "Tarea no encontrada" });
-    }
+    } 
 
     task.title = title;
     task.completed = completed;
 
     res.json({ message: "Tarea actualizada" });
+
+  } catch (error) {
+
+    console.error(error);
+    return res.status(500).json({ message: "Error Inesperado" });
+
+  }
+
+}
+
+export const deleteTodoCtrl = (req, res) => {
+
+  try {
+
+    const id = parseInt(req.params.id);
+
+    const todos = database.todos;
+
+    const taskIndex = todos.findIndex(task => task.id === id);
+
+    if (taskIndex === -1) {
+      return res.status(404).json({ message: "Tarea no encontrada" });
+    }
+
+    todos.splice(taskIndex, 1);
+
+    res.json({ message: "Tarea eliminada" });
 
   } catch (error) {
 

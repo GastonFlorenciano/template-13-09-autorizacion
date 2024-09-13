@@ -6,6 +6,6 @@ const todosRouter = Router();
 
 todosRouter.get("/", validarJwt, getAllTodosCtrl);
 todosRouter.post("/create", validarJwt, createTodoCtrl);
-todosRouter.put("/edit", validarJwt, updateTodoCtrl);
+todosRouter.put("/edit/:id", updateTodoCtrl);
 
 export { todosRouter };
