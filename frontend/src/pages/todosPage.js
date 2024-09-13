@@ -77,13 +77,15 @@ export const todosPage = () => {
   table.appendChild(tbody);
 
   container.appendChild(btnHome);
-  fetch("http://localhost:4000/todos",{
+  fetch("http://localhost:4000/todos", {
     credentials: "include",
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log('data', data);
+      console.log(data);
       data.forEach((todo) => {
+
+        console.log(todo.id);
 
         const tr = document.createElement("tr");
 
@@ -104,7 +106,7 @@ export const todosPage = () => {
 
         const btnDel = document.createElement("button");
 
-        btnDel.textContent = "Delete";
+        btnDel.textContent = "Eliminar";
 
         btnDel.classList.add("bg-red-500", "text-white", "p-2", "rounded", "hover:bg-red-600", "mx-5");
 
@@ -117,8 +119,55 @@ export const todosPage = () => {
           });
 
         });
+
+        const btnEdit = document.createElement("button");
+        btnEdit.textContent = "Editar";
+        btnEdit.classList.add("bg-blue-500", "text-white", "p-2", "rounded", "hover:bg-blue-600");
+        btnEdit.addEventListener("click", () => {
+          const modal = document.createElement("div");
+          modal.classList.add("fixed", "inset-0", "z-10", "overflow-y-auto", "bg-gray-500", "bg-opacity-50");
+          modal.innerHTML = `
+            <div class="relative p-8 bg-white w-1/3 m-auto mt-10 rounded-lg">
+              <span class="absolute top-0 right-0 p-2 text-xl cursor-pointer" onclick="this.parentElement.parentElement.remove()">X</span>
+              <h2 class="text-2xl font-bold mb-4">Editar Tarea</h2>
+              <form id="editForm">
+                <label for="title" class="block text-sm font-medium text-gray-700">Título</label>
+                <input type="text" name="title" value="${todo.title}" class="border-2 border-gray-300 rounded-lg p-2 w-full mb-4">
+                <label for="title" class="block text-sm font-medium text-gray-700">Completado</label>
+                <input type="text" name="completed" value="${todo.completed}" class="border-2 border-gray-300 rounded-lg p-2 w-full mb-4">
+                <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Hecho</button>
+              </form>
+            </div>
+          `;
+          document.body.appendChild(modal);
+
+          const editForm = modal.querySelector("#editForm");
+          editForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const title = editForm.title.value;
+            const completed = editForm.completed.value;
+
+            fetch(`http://localhost:4000/todos/edit/${todo.id}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ title, completed }),
+              credentials: "include",
+            })
+              .then((response) => response.json())
+              .then((updatedTodo) => {
+                console.log(updatedTodo);
+                td2.textContent = updatedTodo.title; 
+                td3.textContent = updatedTodo.completed ? "Sí" : "No";
+                modal.remove();
+              });
+          });
+        });
+
         td4.textContent = todo.owner;
         td4.appendChild(btnDel);
+        td4.appendChild(btnEdit);
 
         tr.appendChild(td1);
         tr.appendChild(td2);
