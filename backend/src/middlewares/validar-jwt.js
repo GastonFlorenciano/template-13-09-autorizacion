@@ -5,9 +5,6 @@ import { database } from "../db/database.js";
 
 // Middleware para verificar el token JWT
 export default (req, res, next) => {
-  console.log(req.session);
-  console.log("-----------");
-  console.log(req.cookies);
   const token = req.cookies.authToken || req.session.token;
 
   if (!token) {

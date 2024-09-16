@@ -16,9 +16,9 @@ export const getAllTodosCtrl = (req, res) => {
 
   });
 
-  tasksCont.map((task, index) => {
-    task.id = index + 1;
-  });
+  // tasksCont.map((task, index) => {
+  //   task.id = index + 1;
+  // });
 
   res.json(tasksCont);
 
@@ -31,12 +31,12 @@ export const createTodoCtrl = (req, res) => {
 
     const todos = database.todos;
 
-    const lastId = todos[todos.length - 1].id;
+    // const lastId = todos[todos.length - 1].id;
 
     const { title, completed } = req.body;
 
     const newTask = {
-      id: lastId + 1,
+      // id: lastId + 1,
       title,
       completed,
       owner: req.user.id,
@@ -58,36 +58,29 @@ export const createTodoCtrl = (req, res) => {
 
 export const updateTodoCtrl = (req, res) => {
   const user = req.user
-  const { id } = req.params
-  const { title, completed } = req.body
 
   if (!user) {
     return res.status(401).json({ message: 'No autorizado' })
   }
 
-  if (!title && !completed) {
-    return res.status(400).json({ message: 'Falta el título o el estado' })
-  }
-
+  const { id } = req.params
+  const { title, completed } = req.body
   const todo = database.todos.find((todo) => todo.id === Number(id))
 
+  if (!title) {
+    return res.status(400).json({ message: 'Falta el título' })
+  }
   if (!todo) {
     return res.status(404).json({ message: 'Tarea no encontrada' })
   }
-
   if (todo.owner !== user.id) {
-    return res.status(401).json({ message: 'No autorizado' })
+    return res.status(403).json({ message: 'No permitido' })
   }
 
-  if (title) {
-    todo.title = title
-  }
+  todo.title = title
+  todo.completed = completed
 
-  if (completed !== undefined) {
-    todo.completed = completed
-  }
-
-  res.json({ todo })
+  res.json({ message: 'Tarea actualizada', todo })
 }
 
 export const deleteTodoCtrl = (req, res) => {
