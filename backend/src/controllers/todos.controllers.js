@@ -31,12 +31,12 @@ export const createTodoCtrl = (req, res) => {
 
     const todos = database.todos;
 
-    // const lastId = todos[todos.length - 1].id;
+    const lastId = todos[todos.length - 1].id;
 
     const { title, completed } = req.body;
 
     const newTask = {
-      // id: lastId + 1,
+      id: lastId + 1,
       title,
       completed,
       owner: req.user.id,
@@ -44,7 +44,7 @@ export const createTodoCtrl = (req, res) => {
 
     todos.push(newTask);
 
-    res.status(201).json({ message: 'Tarea creada exitosamente' });
+    res.status(201).json({ message: 'Tarea creada exitosamente', newTask });
 
   } catch (error) {
 
